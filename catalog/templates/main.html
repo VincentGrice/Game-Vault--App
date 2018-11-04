@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mdl-grid">
+{% for game in games %}
+
+    <div class="demo-card-wide mdl-card mdl-shadow--8dp">
+
+        <div class="mdl-card__title brighten" title="{{game.gameName}}" style="background: url('{{ game.coverUrl }}') center / cover;">
+            <a href="{{url_for('gameDetail',category = game.category, gameId = game.id)}}"></a>
+        </div>
+
+        <div class="mdl-card__actions mdl-card--border">
+
+            <a href="{{url_for('gameDetail',category = game.category, gameId = game.id)}}" title="{{ game.gameName }}" tabindex="-1" class="link-fade"> <span>{{ game.gameName }}</span><span class="span-fade"></span></a>
+
+        </div>
+    </div>
+    {% else %}
+    <span align="center" class="no-game-msg">{{error}}</span>
+{% endfor %}
+</div>
+{% endblock %}
