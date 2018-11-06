@@ -1,10 +1,9 @@
 #!/usr/bin/python
-from flask import Flask, render_template, request, redirect, url_for, \
-    flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask import session as login_session
 from flask import make_response
 
-# importing SqlAlchemy
+# import SqlAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, GameDB, User
@@ -14,20 +13,18 @@ import httplib2
 import json
 import requests
 
-# importing oauth
-
+# import google oauth
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
 
-# app configuration
 
 app = Flask(__name__)
 
 # google client secret
 secret_file = json.loads(open('client_secret.json', 'r').read())
 CLIENT_ID = secret_file['web']['client_id']
-APPLICATION_NAME = 'Item-Catalog'
+APPLICATION_NAME = 'Game Vault'
 
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
@@ -76,9 +73,9 @@ def queryAllGames():
     return session.query(GameDB).all()
 
 
-# App Routes
 
-# main page
+
+# Route to home page
 
 @app.route('/')
 @app.route('/games/')
@@ -97,8 +94,7 @@ def newGame():
 
         # check if user is logged in or not
 
-        if 'provider' in login_session and \
-                    login_session['provider'] != 'null':
+        if 'provider' in login_session and login_session['provider'] != 'null':
             gameName = request.form['gameName']
             coverUrl = request.form['gameImage']
             description = request.form['gameDescription']
@@ -106,8 +102,7 @@ def newGame():
             gameCategory = request.form['category']
             user_id = find_user().id
 
-            if gameName and coverUrl and description \
-                    and gameCategory:
+            if gameName and coverUrl and description and gameCategory:
                 newGame = GameDB(
                     gameName=gameName,
                     coverUrl=coverUrl,
@@ -121,10 +116,10 @@ def newGame():
             else:
                 state = new_state()
                 return render_template(
-                    'newItem.html',
+                    'newGame.html',
                     currentPage='new',
                     title='Add New Game',
-                    errorMsg='All Fields are Required!',
+                    errorNote='You must fill in all the fields!',
                     state=state,
                     login_session=login_session,
                     )
@@ -137,12 +132,12 @@ def newGame():
                 currentPage='main',
                 state=state,
                 login_session=login_session,
-                errorMsg='Please Login first to Add Game!',
+                errorNote='You must log in to add a game !',
                 )
     elif 'provider' in login_session and login_session['provider'] \
             != 'null':
         state = new_state()
-        return render_template('newItem.html', currentPage='new',
+        return render_template('newGame.html', currentPage='new',
                                title='Add New Game', state=state,
                                login_session=login_session)
     else:
@@ -154,7 +149,7 @@ def newGame():
             currentPage='main',
             state=state,
             login_session=login_session,
-            errorMsg='Please Login first to Add Game!',
+            errorNote='You must log in to add a game !',
             )
 
 
@@ -168,7 +163,7 @@ def sortGames(category):
         'main.html',
         games=games,
         currentPage='main',
-        error='Sorry! No Game in Database With This Category :(',
+        errorNote='Sorry! No Game in Database',
         state=state,
         login_session=login_session)
 
@@ -181,13 +176,12 @@ def gameDetail(category, gameId):
                                            category=category).first()
     state = new_state()
     if game:
-        return render_template('itemDetail.html', game=game,
+        return render_template('GameDetail.html', game=game,
                                currentPage='detail', state=state,
                                login_session=login_session)
     else:
         return render_template('main.html', currentPage='main',
-                               error="""No Game Found with this Category
-                               and Game Id :(""",
+                               errorNote="""No Game Found""",
                                state=state,
                                login_session=login_session)
 
@@ -230,32 +224,32 @@ def editGameDetails(category, gameId):
                 else:
                     state = new_state()
                     return render_template(
-                        'editItem.html',
+                        'editGame.html',
                         currentPage='edit',
                         title='Edit Game Details',
                         game=game,
                         state=state,
                         login_session=login_session,
-                        errorMsg='All Fields are Required!',
+                        errorNote='You must fill in all of the fields !',
                         )
             else:
                 state = new_state()
                 return render_template(
-                    'itemDetail.html',
+                    'GameDetail.html',
                     game=game,
                     currentPage='detail',
                     state=state,
                     login_session=login_session,
-                    errorMsg='Sorry! Only the owner can edit games!')
+                    errorNote='You are not the admin, only the admin can delete a game !')
         else:
             state = new_state()
             return render_template(
-                'itemDetail.html',
+                'GameDetail.html',
                 game=game,
                 currentPage='detail',
                 state=state,
                 login_session=login_session,
-                errorMsg='Please Login to Edit the Game Details!',
+                errorNote='You must be logged in to edit details of game !',
                 )
     elif game:
         state = new_state()
@@ -266,7 +260,7 @@ def editGameDetails(category, gameId):
             if user_id == game.user_id or user_id == admin_id:
                 game.description = game.description.replace('<br>', '\n')
                 return render_template(
-                    'editItem.html',
+                    'editGame.html',
                     currentPage='edit',
                     title='Edit Game Details',
                     game=game,
@@ -275,26 +269,25 @@ def editGameDetails(category, gameId):
                     )
             else:
                 return render_template(
-                    'itemDetail.html',
+                    'GameDetail.html',
                     game=game,
                     currentPage='detail',
                     state=state,
                     login_session=login_session,
-                    errorMsg='Sorry! Only the owner can edit games!')
+                    errorNote='You are not the admin, only the admin can edit a game !')
         else:
             return render_template(
-                'itemDetail.html',
+                'GameDetail.html',
                 game=game,
                 currentPage='detail',
                 state=state,
                 login_session=login_session,
-                errorMsg='Please Login to Edit the Game Details!',
+                errorNote='You must be logged in to edit the details of a game !',
                 )
     else:
         state = new_state()
         return render_template('main.html', currentPage='main',
-                               error="""Error Editing Game! No Game Found
-                               with this Category and Game Id :(""",
+                               errorNote="""Error Editing Game! No Game Found """,
                                state=state,
                                login_session=login_session)
 
@@ -320,26 +313,25 @@ def deleteGame(category, gameId):
                 return redirect(url_for('showGames'))
             else:
                 return render_template(
-                    'itemDetail.html',
+                    'GameDetail.html',
                     game=game,
                     currentPage='detail',
                     state=state,
                     login_session=login_session,
-                    errorMsg='Sorry! Only the Owner Can delete the game'
+                    errorNote='You are not the admin, only the admin can delete a game !'
                     )
         else:
             return render_template(
-                'itemDetail.html',
+                'GameDetail.html',
                 game=game,
                 currentPage='detail',
                 state=state,
                 login_session=login_session,
-                errorMsg='Please Login to Delete the Game!',
+                errorNote='You must be logged in to delete the game !',
                 )
     else:
         return render_template('main.html', currentPage='main',
-                               error="""Error Deleting Game! No Game Found
-                               with this Category and Game Id :(""",
+                               errorNote="""Error Deleting Game! No Game Found """,
                                state=state,
                                login_session=login_session)
 
@@ -365,7 +357,7 @@ def gameJSON(category, gameId):
     return jsonify(Game=game.serialize)
 
 
-# google signin function
+# google signin
 
 @app.route('/gconnect', methods=['POST'])
 def gConnect():
@@ -396,8 +388,7 @@ def gConnect():
     # Check that the access token is valid.
 
     access_token = credentials.access_token
-    url = \
-        'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' \
+    url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' \
         % access_token
     header = httplib2.Http()
     result = json.loads(header.request(url, 'GET')[1])
@@ -465,7 +456,7 @@ def gConnect():
                    img=login_session['img'])
 
 
-# logout user
+# User to logout
 
 @app.route('/logout', methods=['post'])
 def logout():
@@ -492,8 +483,7 @@ def gdisconnect():
                                  200)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
-        % access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     header = httplib2.Http()
     result = header.request(url, 'GET')[0]
 
@@ -521,6 +511,6 @@ def gdisconnect():
         return response
 
 if __name__ == '__main__':
-    app.secret_key = 'itsasecret'
+    app.secret_key = 'secret'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)

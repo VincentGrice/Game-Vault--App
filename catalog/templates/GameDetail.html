@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block content %}
+{% if game %}
+<div>
+                    <!--Title of Game-->
+                    <h1 class="game-title" style="color: red;font-weight: 900;">{{game.gameName}}</h1>
+
+    <div>
+        <div style="display: flex; justify-content: center;">
+            <img src="{{game.coverUrl}}" style="width: 300px; height: 300px; object-fit: cover; border-radius: 20%;" />
+        </div>
+                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                    <button type="button" class="btn btn-primary" onclick="location.href='{{url_for('editGameDetails', category = game.category, gameId = game.id)}}'">Edit Game Details</button>
+
+                    <!-- Create space between buttons -->
+                    <div style="margin: 10px;"></div>
+                    <button type="button" class=" btn btn-primary" onclick="location.href='{{url_for('deleteGame', category = game.category, gameId = game.id)}}'">Delete Game</button>
+                </div>        
+
+    </div>
+
+    <br>
+
+    <div class="container" style="width: 400px;display: flex;justify-content: center;">
+        <div style="margin-bottom: 10px;color: red;">
+           <strong>{{game.description|safe}}</strong>
+        </div>
+
+    </div>
+
+</div>
+{% endif %}
+
+{% endblock %}

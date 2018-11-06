@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content%}
+<div class="container" style="display: flex;justify-content: center;">
+        <form action="{{url_for('editGameDetails', category = game.category, gameId = game.id)}}"  method="post" id="gameForm">
+          <div style="margin-top: 10px;">
+            <input type="text" name="gameName" value="{{game.gameName}}" id="gamename">
+            <label for="gameName">Game Name</label>
+          </div>
+          <div>
+            <input type="text" name="gameImage" value="{{game.coverUrl}}" id="coverurl">
+            <label for="gameImage">Game Cover Image url</label>
+          </div>
+          <div>
+            <textarea type="text"  name="gameDescription" id="description">{{game.description}}</textarea>
+            <label for="gameDescription">Description</label>
+          </div>
+
+          <div>
+            <label for="category">Category</label>
+            <select name="category">
+                <option value="Action">Action</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Family">Family</option>
+                <option value="Sports">Sports</option>
+            </select>
+          </div>
+
+        <br>
+        <button type="button" class="btn btn-primary" onclick="confirmAttributes()" type="button" value="Edit">Edit</button>
+        <a href="{{url_for('showGames')}}" style="color: red; font-weight: 900;">Cancel</a>
+
+      </form>
+</div>
+{% endblock %}

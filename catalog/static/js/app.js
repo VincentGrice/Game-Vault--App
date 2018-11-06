@@ -1,67 +1,59 @@
-$(".brighten").click(function() {
-  window.location = $(this).find("a").attr("href");
-  return false;
-});
-
-$(".demo-card-wide").hover(
-    function() {
-        $(this).toggleClass('mdl-shadow--8dp').toggleClass('mdl-shadow--2dp');
-
-    }
-);
-var hide = {
-    loginbutton: function(){
-      $('.signInButtonTitle').hide();
-      $('.signOutButtonTitle').show();
-      $('.signInButton').hide();
-      $('#user_info').show();
+//Only show one login/logut button and hide client's account for google
+const hidden = {
+    googlePress: function(){
+      $('.googleOut').show();
+      $('.googleButtonLegend').show();
+      $('.googleButton').hide();
+      $('#client').show();
       $('#logout_button1').show();
     },
-    userinfo: function(){
-      $('#user_info').hide();
-      $('.signInButtonTitle').show();
-      $('.signOutButtonTitle').hide();
-      $('.signInButton').show();
+    clientdata: function(){
+      $('.googleOut').hide();
+      $('#client').hide();
+      $('.googleButtonLegend').hide();
+      $('.googleButton').show();
       $('#logout_button1').hide();
     }
 }
 
+// Hide client data if client isn't logged in 
 if((logged == 'null')||(logged=='')){
-  hide.userinfo();
+  hidden.clientdata();
 }
 else{
-  hide.loginbutton();
+  hidden.googlePress();
 }
 
-var notification = document.querySelector('.mdl-js-snackbar');
+// set the document selector to a variable
+const alert = document.querySelector('.mdl-js-snackbar');
 
-var validateDetails = function() {
-  var gamename = $('#gamename');
-  var authorname = $('#authorname');
-  var coverUrl = $('#coverurl');
-  var description = $('#description');
-  var category = $('#category');
+var confirmAttributes = function() {
+  let gamename = $('#gamename');
+  let coverUrl = $('#coverurl');
+  let description = $('#description');
+  let category = $('#category');
 
+// If client's entry value doesn't have input, have snackbar notify client
   if (gamename.val() == "") {
-    notification.MaterialSnackbar.showSnackbar(
+    alert.MaterialSnackbar.showSnackbar(
       {
-        message: "Game name can not be empty!"
+        message: "You should give your game a name !"
       }
     );
     gamename.focus();
     return false;
   }
   else if (coverUrl.val() == "") {
-    notification.MaterialSnackbar.showSnackbar(
+    alert.MaterialSnackbar.showSnackbar(
       {
-        message: "Cover Image Url is required :) !"
+        message: "You should insert a url for your cover art !"
       }
     );
     coverUrl.focus();
     return false;
   }
   else if (description.val() == "") {
-    notification.MaterialSnackbar.showSnackbar(
+    alert.MaterialSnackbar.showSnackbar(
       {
         message: "What is a description of your game ?"
       }
@@ -70,7 +62,7 @@ var validateDetails = function() {
     return false;
   }
   else if (category.val() == "") {
-    notification.MaterialSnackbar.showSnackbar(
+    alert.MaterialSnackbar.showSnackbar(
       {
         message: "What is the game's category ?"
       }
@@ -78,11 +70,13 @@ var validateDetails = function() {
     return false;
   }
 
+  //Make sure information is submitted
   $('#gameForm').submit();
 
 };
 
-var googleSignInCallback = function(authResult){
+// Use ajax call to retrieve google account information and check connection
+var googleOauthCallback = function(authResult){
     if (authResult['code']){
         $.ajax({
             type: 'POST',
@@ -93,10 +87,10 @@ var googleSignInCallback = function(authResult){
             success: function(result){
                 if(result){
                     var img = result['img'].replace('https','http');
-                    hide.loginbutton();
-                    $('#userImg').attr('src',img);
-                    $('#userName').html(result['name']);
-                    $('#userEmail').html(result['email']);
+                    hidden.googlePress();
+                    $('#clientImg').attr('src',img);
+                    $('#clientName').html(result['name']);
+                    $('#clientEmail').html(result['email']);
                     logged = 'google';
                 }
                 else if (authResult['error']){
@@ -110,8 +104,8 @@ var googleSignInCallback = function(authResult){
     }
 };
 
-
-var logout = function(){
+// Make sure client is able to log out successfully or whether client is logged in. 
+let logout = function(){
 
    if(logged=='google'){
 
@@ -124,25 +118,25 @@ var logout = function(){
       success: function(result){
         if(result['state'] == 'loggedOut'){
           console.log(window.location.href + "?error=" + "successLogout");
-          notification.MaterialSnackbar.showSnackbar(
+          alert.MaterialSnackbar.showSnackbar(
             {
               message: "You have been Successfully Logged out!"
             }
           );
-          hide.userinfo();
+          hidden.clientdata();
 
         }
         else if (result['state'] == 'notConnected'){
-          notification.MaterialSnackbar.showSnackbar(
+          alert.MaterialSnackbar.showSnackbar(
             {
-              message: "User not Logged in!"
+              message: "User is not logged in !"
             }
           );
         }
         else if (result['state'] == 'errorRevoke'){
-          notification.MaterialSnackbar.showSnackbar(
+          alert.MaterialSnackbar.showSnackbar(
             {
-              message: "Error Revoking User Token!"
+              message: "There was an error Revoking the User Token!"
             }
           );
         }
@@ -154,7 +148,7 @@ var logout = function(){
    }
    else{
 
-     notification.MaterialSnackbar.showSnackbar(
+     alert.MaterialSnackbar.showSnackbar(
        {
          message: "User not Logged in!"
        }
@@ -163,9 +157,11 @@ var logout = function(){
 
 }
 
+
+
 gapi.signin.render("googleSignIn", {
               'clientid': '45745583403-rnm6t7dnpdmvv3f5blioba1drn21nfns.apps.googleusercontent.com',
-              'callback': googleSignInCallback,
+              'callback': googleOauthCallback,
               'cookiepolicy': 'single_host_origin',
               'requestvisibleactions': 'http://schemas.google.com/AddActivity',
               'scope': 'openid email',
@@ -174,20 +170,7 @@ gapi.signin.render("googleSignIn", {
               'approvalprompt': 'force'
 });
 
-gapi.signin.render("googleSignInCustom", {
-              'clientid': '45745583403-rnm6t7dnpdmvv3f5blioba1drn21nfns.apps.googleusercontent.com',
-              'callback': googleSignInCallback,
-              'cookiepolicy': 'single_host_origin',
-              'requestvisibleactions': 'http://schemas.google.com/AddActivity',
-              'scope': 'openid email',
-              'redirecturi': 'postmessage',
-              'accesstype': 'offline',
-              'approvalprompt': 'force'
-});
 
-$('#logout_button').click(function(){
-    logout();
-});
 
 $('#logout_button1').click(function() {
   logout();

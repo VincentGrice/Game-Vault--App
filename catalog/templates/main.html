@@ -1,22 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="mdl-grid">
-{% for game in games %}
+<div class="container">
+    <div class="row" style="margin-top: 20px;">
+    {% for game in games %}
+    <div class="col-md-4 col-sm-6 col-">
+        <div class="card img-fluid" style="width: 18rem; margin-bottom: 20px; opacity: 0.8;">
 
-    <div class="demo-card-wide mdl-card mdl-shadow--8dp">
+            <img class="card-img-top" src="{{game.coverUrl}}" style="width: 286; height: 190px; object-fit: cover;">
 
-        <div class="mdl-card__title brighten" title="{{game.gameName}}" style="background: url('{{ game.coverUrl }}') center / cover;">
-            <a href="{{url_for('gameDetail',category = game.category, gameId = game.id)}}"></a>
-        </div>
-
-        <div class="mdl-card__actions mdl-card--border">
-
-            <a href="{{url_for('gameDetail',category = game.category, gameId = game.id)}}" title="{{ game.gameName }}" tabindex="-1" class="link-fade"> <span>{{ game.gameName }}</span><span class="span-fade"></span></a>
-
+            <div class="card-body">
+                <a class="btn btn-primary img-fluid" href="{{url_for('gameDetail',category = game.category, gameId = game.id)}}" > <span class="img-fluid">{{ game.gameName }}</span></a>
+            </div>
         </div>
     </div>
-    {% else %}
-    <span align="center" class="no-game-msg">{{error}}</span>
+        {% else %}
 {% endfor %}
+    </div>
 </div>
 {% endblock %}
