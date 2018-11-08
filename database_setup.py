@@ -45,5 +45,5 @@ class GameDB(Base):
             'description': self.description
         }
 
-engine = create_engine('sqlite:///GameCatalog.db')
+engine = create_engine('postgresql://catalog:password@localhost/catalog')
 Base.metadata.create_all(engine)
