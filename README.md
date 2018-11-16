@@ -34,3 +34,7 @@ Modern web applications perform a variety of functions and provide amazing featu
     $ python /vagrant/app.py
   ```
   3. Access and test your application by visiting (http://localhost:5000).
+  
+  # You can visit the app live 
+  www.gricegames.site
+Right now the Google Oauth Login isn't working due to the features of Python anywhere of having google on the whitelist. 
