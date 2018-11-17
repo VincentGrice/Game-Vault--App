@@ -37,4 +37,4 @@ Modern web applications perform a variety of functions and provide amazing featu
   
   # You can visit the app live 
   www.gricegames.site
-Right now the Google Oauth Login isn't working due to the features of Python anywhere of having google on the whitelist. 
+You can only login my app if you have a google account.  
